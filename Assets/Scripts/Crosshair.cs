@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Crosshair : MonoBehaviour {
     public Transform movePoint;
-	public float moveSpeed = 5f;
+	public float moveSpeed = 4f;
 
 	void Start() {
     	transform.position = new Vector3(-1.5f, -1.5f, 0f);
