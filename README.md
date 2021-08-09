@@ -4,10 +4,10 @@ This game will serve as a sandbox for experimenting with different AI techniques
 
 # Design
 Here is a screenshot of the main level. All that's currently implemented is spawning the character, and moving the cursor.
-![alt text](https://imgur.com/lwo8lwA)
+![alt text](https://i.imgur.com/lwo8lwA.png)
 
 Here is a mock of what I plan on having in the game as features. This kind of menu should show up when you click on a unit.
-![alt text](https://imgur.com/WLpzg48)
+![alt text](https://i.imgur.com/WLpzg48.png)
 
 # Assets
 Find the assets here: https://kenney.nl/assets/rpg-urban-pack
