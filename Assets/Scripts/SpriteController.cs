@@ -11,6 +11,9 @@ public class SpriteController : MonoBehaviour {
 	private Vector3 destination;
 	public Tilemap map;
 
+	public bool playerTurn;
+	public EnemyController currentEnemy;
+
 	private void Awake() {
 		mouseInput = new MouseInput();
 	}
@@ -27,17 +30,20 @@ public class SpriteController : MonoBehaviour {
         movePoint.parent = null; // move movePoint Transform to root of hierarchy
 		mouseInput.Mouse.MouseClick.performed += _ => MouseClick();
 		destination = transform.position;
+		playerTurn = true;
     }
 
 	private void MouseClick() {
-		Vector2 mousePosition = mouseInput.Mouse.MousePosition.ReadValue<Vector2>();
-		mousePosition = Camera.main.ScreenToWorldPoint(mousePosition);
-		
-		Vector3Int gridPosition = map.WorldToCell(mousePosition);
+		if (playerTurn) {
+			Vector2 mousePosition = mouseInput.Mouse.MousePosition.ReadValue<Vector2>();
+			mousePosition = Camera.main.ScreenToWorldPoint(mousePosition);
+			
+			Vector3Int gridPosition = map.WorldToCell(mousePosition);
 
-		if (Vector3.Distance(transform.position, map.GetCellCenterWorld(gridPosition)) < 1.7) {
-			if (map.HasTile(gridPosition)) {
-				destination = map.GetCellCenterWorld(gridPosition);
+			if (Vector3.Distance(transform.position, map.GetCellCenterWorld(gridPosition)) < 1.7) {
+				if (map.HasTile(gridPosition)) {
+					destination = map.GetCellCenterWorld(gridPosition);
+				}
 			}
 		}
 	}
@@ -57,5 +63,15 @@ public class SpriteController : MonoBehaviour {
 		}*/
 		if (Vector3.Distance(transform.position, destination) > 0.1f)
 			transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
+	}
+
+	public void HandleTurnChange() {
+		if (playerTurn) {
+			playerTurn = false;
+			currentEnemy.enemyTurn = true;
+		} else {
+			playerTurn = true;
+			currentEnemy.enemyTurn = false;
+		}
 	}
 }
