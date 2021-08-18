@@ -17,7 +17,7 @@ public class ClickManager : MonoBehaviour {
 		if (Physics.Raycast(castPoint, out hit, Mathf.Infinity))  {
 		//	objectToMove.transform.position = hit.point;
         }
-		Debug.Log(cursor.transform.position);
+	//	Debug.Log(cursor.transform.position);
 		//Vector3Int gPos = grid.WorldToCell(cursor.transform.position);
 		//Debug.Log("name: " + tilemap.GetTile(gPos).name + "\nPosition: " + gPos);
     }

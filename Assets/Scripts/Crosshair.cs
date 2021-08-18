@@ -20,7 +20,6 @@ public class Crosshair : MonoBehaviour {
 		if(Vector3.Distance(transform.position, movePoint.position) == 0f) {  // would call IsInMapBounds() here
 			MoveLeftRight();
 			MoveUpDown();
-	 
 		}
 
     }
@@ -49,5 +48,9 @@ public class Crosshair : MonoBehaviour {
 			}
 		}
 		return false;
+	}
+
+	public Vector3 GetPosition() {
+		return transform.position;
 	}
 }

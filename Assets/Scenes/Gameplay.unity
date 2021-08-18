@@ -622,7 +622,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 5
   movePoint: {fileID: 1186727103}
-  map: {fileID: 0}
+  map: {fileID: 1580846478}
   playerTurn: 0
   currentEnemy: {fileID: 1519227047}
 --- !u!1 &1519227046
