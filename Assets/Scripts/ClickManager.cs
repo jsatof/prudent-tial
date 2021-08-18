@@ -1,25 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class ClickManager : MonoBehaviour {
-    void Start() {
-        
+	private GameObject cursor;
+	private Tilemap tilemap;
+
+	void Start() {
+		cursor = GameObject.Find("Crosshair");
     }
 
     void Update() {
-    	if (Input.GetMouseButtonDown(0)) {
-			Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			Vector2 mousePos2D = new Vector2(mousePos.x, mousePos.y);
-
-			RaycastHit2D hit = Physics2D.Raycast(mousePos2D, Vector2.zero);
-
-
-			if (hit.collider != null) {
-				Debug.Log("Clicked something");
-			} else {
-				Debug.Log("Clicked nothing");
-			}
-		}
+		Ray castPoint = Camera.main.ScreenPointToRay(cursor.transform.position);
+		RaycastHit hit;
+		if (Physics.Raycast(castPoint, out hit, Mathf.Infinity))  {
+		//	objectToMove.transform.position = hit.point;
+        }
+		Debug.Log(cursor.transform.position);
+		//Vector3Int gPos = grid.WorldToCell(cursor.transform.position);
+		//Debug.Log("name: " + tilemap.GetTile(gPos).name + "\nPosition: " + gPos);
     }
+
 }
