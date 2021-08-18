@@ -2,76 +2,372 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using TMPro;
 
 public class SpriteController : MonoBehaviour {
 	public float moveSpeed = 5f;
-	public Transform movePoint;
+	public Crosshair crosshair;
 
-	MouseInput mouseInput;
 	private Vector3 destination;
 	public Tilemap map;
 
 	public bool playerTurn;
 	public EnemyController currentEnemy;
 
-	private void Awake() {
-		mouseInput = new MouseInput();
-	}
+	public TextMeshProUGUI textMesh;
 
-	private void OnEnable() {
-		mouseInput.Enable();
-	}
+	private GameObject[] blueSquares;
+	private GameObject[] redSquares;
 
-	private void OnDisable() {
-		mouseInput.Disable();
-	}
+	public GameObject menu;
+
+	public bool MenuIsOpen = false;
+	private bool HasMovedThisTurn;
 
     void Start() {
-        movePoint.parent = null; // move movePoint Transform to root of hierarchy
-		mouseInput.Mouse.MouseClick.performed += _ => MouseClick();
 		destination = transform.position;
 		playerTurn = true;
+		HasMovedThisTurn = false;
+
+		blueSquares = GameObject.FindGameObjectsWithTag("BlueSquare");
+		foreach (GameObject s in blueSquares) {
+			s.SetActive(false);
+		}
+
+		redSquares = GameObject.FindGameObjectsWithTag("RedSquare");
+		foreach (GameObject s in redSquares) {
+			s.SetActive(false);
+		}
     }
 
-	private void MouseClick() {
-		if (playerTurn) {
-			Vector2 mousePosition = mouseInput.Mouse.MousePosition.ReadValue<Vector2>();
-			mousePosition = Camera.main.ScreenToWorldPoint(mousePosition);
-			
-			Vector3Int gridPosition = map.WorldToCell(mousePosition);
-
-			if (Vector3.Distance(transform.position, map.GetCellCenterWorld(gridPosition)) < 1.7) {
-				if (map.HasTile(gridPosition)) {
-					destination = map.GetCellCenterWorld(gridPosition);
+    void Update() {
+		if (Input.GetKeyDown("space")) {
+			if (playerTurn) {
+				if (GetGridPositionFromCrosshair().z != 1000f) {
+					if (!MenuIsOpen) {
+						OpenMenu();
+						ShowSquares();
+					} 
 				}
 			}
 		}
 	}
 
-    void Update() {
-		// MoveSpeed args: (current pos, target pos, speed)
-		/*transform.position = Vector3.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
-		
-		if (Vector3.Distance(transform.position, movePoint.position) <= -0.05f) {
-        	if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1f) {
-				movePoint.position += new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f); // add horizontal input to x axis
-	    	}
-    
-        	if(Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f) {
-				movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f); // add vertical input to y axis
-	    	}
-		}*/
-		if (Vector3.Distance(transform.position, destination) > 0.1f)
-			transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
+	public void OpenMenu() {
+		MenuIsOpen = true;
+
+		menu.SetActive(true);
+	}
+
+	public void CloseMenu() {
+		MenuIsOpen = false;
+		menu.SetActive(false);
+	}
+
+	private Vector3 GetGridPositionFromCrosshair() {
+		Vector2 chPosition = Camera.main.WorldToScreenPoint(crosshair.GetPosition());
+		chPosition = Camera.main.ScreenToWorldPoint(chPosition);
+
+		Vector3Int gridPosition = map.WorldToCell(chPosition);
+
+		if (map.HasTile(gridPosition)) {
+			return map.GetCellCenterWorld(gridPosition);
+		}
+
+		return new Vector3(0f, 0f, 1000f);
+	}
+
+	public void MovePlayerToCrosshair() {
+		if (!HasMovedThisTurn) {
+			destination = GetGridPositionFromCrosshair();
+
+			if (Vector3.Distance(transform.position, destination) < 4.5 && Vector3.Distance(transform.position, destination) != 4)
+				if (Vector3.Distance(transform.position, destination) > 0.1f) {
+					while (transform.position != destination)
+						transform.position = Vector3.MoveTowards(transform.position, destination, moveSpeed * Time.deltaTime);
+
+					HasMovedThisTurn = true;
+				}
+		}
 	}
 
 	public void HandleTurnChange() {
 		if (playerTurn) {
+			CloseMenu();
+			HideSquares();
 			playerTurn = false;
 			currentEnemy.enemyTurn = true;
+			textMesh.SetText("ENEMY TURN");
 		} else {
 			playerTurn = true;
+			HasMovedThisTurn = false;
 			currentEnemy.enemyTurn = false;
+			textMesh.SetText("PLAYER TURN");
 		}
+	}
+
+	private void HideSquares() {
+		foreach (GameObject s in blueSquares) {
+			s.SetActive(false);
+		}
+		foreach (GameObject s in redSquares) {
+			s.SetActive(false);
+		}
+	}
+
+	private void ShowSquares() {
+
+		float[] values = new float[] {3f, 2f, 1f, 0f};
+		int currentSquare = 0;
+
+		// first column
+
+		for (int i = 0; i < 4; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.left * 3f;
+			square.transform.position += Vector3.up * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.left * 3f;
+			square.transform.position += Vector3.down * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		// second column
+
+		for (int i = 0; i < 4; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.left * 2f;
+			square.transform.position += Vector3.up * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.left * 2f;
+			square.transform.position += Vector3.down * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		// third column
+
+		for (int i = 0; i < 4; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.left * 1f;
+			square.transform.position += Vector3.up * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.left * 1f;
+			square.transform.position += Vector3.down * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		// middle column
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.up * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.down * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		// fifth column
+
+		for (int i = 0; i < 4; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.right * 1f;
+			square.transform.position += Vector3.up * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.right * 1f;
+			square.transform.position += Vector3.down * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		// sixth column
+		for (int i = 0; i < 4; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.right * 2f;
+			square.transform.position += Vector3.up * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.right * 2f;
+			square.transform.position += Vector3.down * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		// seventh column
+		for (int i = 0; i < 4; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.right * 3f;
+			square.transform.position += Vector3.up * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = blueSquares[currentSquare];
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.right * 3f;
+			square.transform.position += Vector3.down * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+		
+		// red squares
+
+		currentSquare = 0;
+
+		// top row
+		for (int i = 0; i < 4; i++) {
+			GameObject square = redSquares[currentSquare];
+
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.up * 4f;
+			square.transform.position += Vector3.left * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = redSquares[currentSquare];
+
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.up * 4f;
+			square.transform.position += Vector3.right * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		// left column
+
+		for (int i = 0; i < 4; i++) {
+			GameObject square = redSquares[currentSquare];
+
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.left * 4f;
+			square.transform.position += Vector3.up * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = redSquares[currentSquare];
+
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.left * 4f;
+			square.transform.position += Vector3.down * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		// bottom row
+
+		for (int i = 0; i < 4; i++) {
+			GameObject square = redSquares[currentSquare];
+
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.down * 4f;
+			square.transform.position += Vector3.left * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = redSquares[currentSquare];
+
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.down * 4f;
+			square.transform.position += Vector3.right * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		// right column
+
+		for (int i = 0; i < 4; i++) {
+			GameObject square = redSquares[currentSquare];
+
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.right * 4f;
+			square.transform.position += Vector3.up * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
+		for (int i = 0; i < 3; i++) {
+			GameObject square = redSquares[currentSquare];
+
+			square.transform.position = transform.position;
+			square.transform.position += Vector3.right * 4f;
+			square.transform.position += Vector3.down * values[i];
+
+			square.SetActive(true);
+			currentSquare++;
+		}
+
 	}
 }

@@ -9,7 +9,7 @@ public class Crosshair : MonoBehaviour {
 	public Tile hoveredTile;
 
 	void Start() {
-    	transform.position = new Vector3(-1.5f, -1.5f, 0f);
+    	transform.position = new Vector3(-1.5f, -0.5f, 0f);
 		movePoint.parent = null;
     }
 
@@ -49,5 +49,9 @@ public class Crosshair : MonoBehaviour {
 			}
 		}
 		return false;
+	}
+
+	public Vector3 GetPosition() {
+		return transform.position;
 	}
 }
