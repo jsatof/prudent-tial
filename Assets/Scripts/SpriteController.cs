@@ -32,9 +32,13 @@ public class SpriteController : MonoBehaviour {
 	private void MouseClick() {
 		Vector2 mousePosition = mouseInput.Mouse.MousePosition.ReadValue<Vector2>();
 		mousePosition = Camera.main.ScreenToWorldPoint(mousePosition);
+		
 		Vector3Int gridPosition = map.WorldToCell(mousePosition);
-		if (map.HasTile(gridPosition)) {
-			destination = map.GetCellCenterWorld(gridPosition);
+
+		if (Vector3.Distance(transform.position, map.GetCellCenterWorld(gridPosition)) < 1.7) {
+			if (map.HasTile(gridPosition)) {
+				destination = map.GetCellCenterWorld(gridPosition);
+			}
 		}
 	}
 
