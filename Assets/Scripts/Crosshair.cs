@@ -9,7 +9,7 @@ public class Crosshair : MonoBehaviour {
 	public Tile hoveredTile;
 
 	void Start() {
-    	transform.position = new Vector3(-1.5f, -1.5f, 0f);
+    	transform.position = new Vector3(-1.5f, -0.5f, 0f);
 		movePoint.parent = null;
     }
 
@@ -20,6 +20,7 @@ public class Crosshair : MonoBehaviour {
 		if(Vector3.Distance(transform.position, movePoint.position) == 0f) {  // would call IsInMapBounds() here
 			MoveLeftRight();
 			MoveUpDown();
+	 
 		}
 
     }
